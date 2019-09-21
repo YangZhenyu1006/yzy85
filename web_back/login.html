@@ -32,7 +32,9 @@
         </div>
     </div> 
     <script src="./js/lib/jquery-1.12.4.min.js"></script>
+    <script src="./js/utis/user.js"></script>
     <script>
+        
         //给btn添加点击事件
         $("#btnLogin").click(function(){
             //获取用户信息
@@ -44,20 +46,20 @@
                 alert('?????');
                 return;
             }
-            //ajax请求
-            $.post("http://localhost:8000/admin/login",{
-                user_name : userName,
-                password : password
-            },
-            function(y){
-                console.log(y);
-                if(abc.code==200){
-                    alert('ok');
-                }else{
-                    alert(y.msg);
-                }
-            })
-        })
+            // 用户登录
+            user.login(userName,password,function(y){
+                // alert('ajax成功之后')
+                // console.log(y);
+            if(y.code==200){
+                alert('ok');
+                //页面跳转
+                window.location.href="./index.html";
+            }else{
+                alert(y.msg);
+                alert("密码或用户名输入错误");
+            }
+            }); 
+        });
     </script>
 </body>
 
