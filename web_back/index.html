@@ -17,8 +17,8 @@
     <div class="sider">
         <a href="#" class="logo"><img src="images/logo02.png" alt="logo"></a>
         <div class="user_info">
-            <img src="images/2.jpg" alt="person">
-            <span>欢迎&nbsp;&nbsp;李思思</span>
+            <img id="userImg" src="images/2.jpg" alt="person">
+            <span>欢迎&nbsp;&nbsp;<i id="userName" style="font-style: normal">李思思</i></span>
             <b>管理员</b>
         </div>
         <div class="menu">
@@ -51,7 +51,7 @@
     <div class="main" id="main_body">
         <iframe src="main_count.html" frameborder="0" id="main_frame" name="main_frame" frameborder="0" scrolling="auto"></iframe>
     </div>
-
+ 
 
 
     <script>
@@ -104,18 +104,30 @@
 
 
     </script>
+    <script src="./js/utis/config.js"></script>
     <script src="./js/utis/user.js"></script>
     <script>
-        $("#btnLogout").click(function(){
-            //退出
-            // window.confirm("你确定要退出吗？");
-            user.logout(function(y){
-                console.log(y);
-                if(y.code===200){
-                    window.location.href="./login.html";
+        $(function(){
+            user.getInfo(function(res){
+                console.log(res);
+                if(res.code===200){
+                    $("#userName").text(res.data.nickname);
+                    $("#userImg").prop('src',res.data.user_pic);
                 }
             })
         })
+        $("#btnLogout").click(function(){
+            //退出
+            if(window.confirm("你确定要退出吗？")){
+                user.logout(function(y){
+                    console.log(y);
+                    if(y.code===200){
+                        window.location.href="./login.html";
+                    }
+                });
+            }
+
+        });
     </script>
 </body>
 </html>
