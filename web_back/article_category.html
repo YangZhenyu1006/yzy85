@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
-    <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/lib/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap/js/bootstrap.min.js"></script>
 </head>
 
@@ -28,7 +28,7 @@
                         <th class="text-center" width="100">操作</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tableContent">
                     <tr>
                         <td>未分类</td>
                         <td>uncategorized</td>
@@ -90,12 +90,15 @@
             <div class="modal-body">
               <form>
                 <div class="form-group">
-                  <label for="recipient-name" class="control-label">分类名称:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+                  <label for="categoryName" class="control-label">分类名称:</label>
+                  <input type="text" class="form-control" id="categoryName">
                 </div>
                 <div class="form-group">
-                  <label for="message-text" class="control-label">分类别名:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+                  <label for="categorySlug" class="control-label">分类别名:</label>
+                  <input type="text" class="form-control" id="categorySlug">
+                </div>
+                <div id="divResylt" class="alert alert-danger" role="alert">
+                    Content
                 </div>
               </form>
             </div>
@@ -118,10 +121,10 @@
             $('#addModal').modal('hide');
           });
 
-          $('#model_add').click(function(){
-            alert('add');
-            $('#addModal').modal('hide');
-          });
+        //   $('#model_add').click(function(){
+        //     alert('add');
+        //     $('#addModal').modal('hide');
+        //   });
 
           $('.category_table').delegate('a','click',function(){
               if($(this).hasClass('btn-info')){
@@ -130,7 +133,63 @@
               }
           })      
       </script>
-
+      <script src="./js/utis/category.js"></script>
+      <script src="./js/lib/template-web.js"></script>
+      <script id="tmp" type="text/html">
+        <!-- {{msg}} -->
+        {{each data item}}
+        <tr>
+            <td>{{item.name}}</td>
+            <td>{{item.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
+                    class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:deleteTr( 2 );" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+      </script>
+        <script>
+            function doQuery(){
+                category.show(function(res){
+                    console.log(res);
+                    if(res.code===200){
+                        //将数据转成表格中的行
+                        //1.循环加字符串拼接
+                        //2.模板引擎
+                        var htmlShr=template("tmp",res);
+                        $('#tableContent').html(htmlShr);
+                        console.log(htmlShr);
+                    }
+                });
+            }
+            $(function(){
+                doQuery();
+                $("#model_add").click(function(){
+                    //1.获取用户的输入，判断
+                    var name = $("#categoryName").val();
+                    var slug = $("#categorySlug").val();
+                    if(name===""||slug===""){
+                        
+                        return;
+                    }
+                    //2.调用方法
+                    category.add(name,slug,function(res){
+                        if(res.code === 200){
+                            //隐藏模态框
+                            $("#addModal").modal("hide");
+                            //
+                            $("#divResylt").text();
+                            //重新求数据
+                            doQuery();
+                        }else{
+                            $("#divResylt").text(res.msg);
+                        }
+                        console.log(res);
+                    });
+                });
+            });
+        </script>
 </body>
 
 </html>
