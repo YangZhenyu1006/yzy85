@@ -39,7 +39,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <!-- <tr>
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
@@ -67,12 +67,12 @@
                                 class="btn btn-info btn-xs">编辑</a>
                             <a href="javascript:deleteTr( 4 );" class="btn btn-danger btn-xs">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" id="showAddModel" data-toggle="modal" data-target="#addModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -92,6 +92,8 @@
                 <div class="form-group">
                   <label for="categoryName" class="control-label">分类名称:</label>
                   <input type="text" class="form-control" id="categoryName">
+                  <input type="hidden" class="form-control" id="categoryId">
+
                 </div>
                 <div class="form-group">
                   <label for="categorySlug" class="control-label">分类别名:</label>
@@ -104,6 +106,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
+              <button type="button" class="btn btn-primary" id="model_edit">修改</button>              
               <button type="button" class="btn btn-primary" id="model_add">新增</button>
             </div>
           </div>
@@ -117,7 +120,7 @@
           });
 
           $('#model_shutoff').click(function(){
-            alert('shutoff');
+            // alert('shutoff');
             $('#addModal').modal('hide');
           });
 
@@ -126,15 +129,65 @@
         //     $('#addModal').modal('hide');
         //   });
 
-          $('.category_table').delegate('a','click',function(){
-              if($(this).hasClass('btn-info')){
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-              }
-          })      
+
+
+
+
+
+            //显示新增模态框
+            $("#showAddModel").click(function(){
+                $("#model_deit").hide();//隐藏编辑
+                $("#model_add").show();//隐藏编辑
+                $('#addModal .modal-title').html('新增分类');
+                // 新增分类
+                $("#categoryName").val();
+                $("#categorySlug").val();
+                $("divResylt").hide();
+            })
+
+
+
+
+            //事件委托：编辑
+            //第一步：显示之前的信息
+            //第二步：用户修改并保存
+            $('.category_table').on('click','a',function(){
+                if($(this).hasClass('btn-info')){
+
+                    var id=$(this).attr("data-id");
+                    var name=$(this).attr("data-name");
+                    var slug=$(this).attr("data-slug");
+                    
+                    $("#categoryName").val(name);
+                    $("#categorySlug").val(slug);
+                    $("#categoryId").val(id);
+
+                    $("#divResylt").text('').hide();
+
+                    $('#addModal .modal-title').html('修改分类名称');
+                    $('#addModal').modal('show');
+                    
+                    $("#model_add").hide();//隐藏添加
+                    $("#model_deit").show();//隐藏编辑
+                }
+            })  
+
+
+
+
+            // 事件委托
+
+        //   $('.category_table').delegate('a','click',function(){
+        //       if($(this).hasClass('btn-info')){
+        //         $('#addModal .modal-title').html('修改分类名称');
+        //         $('#addModal').modal('show');
+        //       }
+        //   })      
       </script>
+      <script src="./js/utis/config.js"></script>
       <script src="./js/utis/category.js"></script>
       <script src="./js/lib/template-web.js"></script>
+      
       <script id="tmp" type="text/html">
         <!-- {{msg}} -->
         {{each data item}}
@@ -142,9 +195,9 @@
             <td>{{item.name}}</td>
             <td>{{item.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
+                <a data-id="{{item.id}}" data-name="{{item.name}}" data-slug="{{item.slug}}" href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
                     class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 2 );" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:deleteTr({{item.id}});" class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -163,8 +216,44 @@
                     }
                 });
             }
+            //执行删除操作
+            function deleteTr(id){
+                //id：要删除的id值
+                if(window.confirm("你要删除吗？")){
+                    alert(id);
+                    category.del(id,function(res){
+                        console.log(res);
+                        if(res.code===200){
+                            doQuery();
+                        }
+                    });
+                }
+            }
             $(function(){
                 doQuery();
+                //执行编辑操作
+                $("#model_edit").click(function(){
+                    //1.获取用户的输入，判断
+                    var name = $("#categoryName").val();
+                    var slug = $("#categorySlug").val();
+                    //从隐藏域中取出的值
+                    var id= $("#categoryId").val();
+                    if(name===""||slug===""){
+                        
+                        return;
+                    }
+                    category.edit(id,name,slug,function(res){
+                        if(res.code===200){
+                            //隐藏模态框
+                            $("#addModal").modal("hide");
+                            //清空提示
+                            $("#divResylt").text();
+                            //重新求数据
+                            doQuery();
+                        }
+                    });
+                });
+                // 执行添加操作
                 $("#model_add").click(function(){
                     //1.获取用户的输入，判断
                     var name = $("#categoryName").val();
@@ -178,7 +267,7 @@
                         if(res.code === 200){
                             //隐藏模态框
                             $("#addModal").modal("hide");
-                            //
+                            //清空提示
                             $("#divResylt").text();
                             //重新求数据
                             doQuery();
