@@ -3,6 +3,7 @@ var URLIST = {
     user_login:BASE_URL+"/admin/login",
     user_logout:BASE_URL+"/admin/logout",
     user_getInfo:BASE_URL+"/admin/getuser",
+    user_editInfo:BASE_URL+"/admin/userinfo_edit",
 
 
     category_show:BASE_URL+"/admin/category_search",

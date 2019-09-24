@@ -30,6 +30,18 @@ var user ={
         $.get(URLIST.user_getInfo,function(res){
         callBack(res);
         });
-    }
+    },
 
+    editInfo:function(fd,callBack){
+        $.ajax({
+            type:'post',
+            data:fd,
+            url:URLIST.user_editInfo,
+            contentType:false,
+            processData:false,
+            success:function(res){
+                callBack(res);
+            }
+        });
+    }
 };
